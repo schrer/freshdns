@@ -41,7 +41,7 @@ fn main() {
     let a_records = get_a_records(&config.cloudflare);
     for a_record in a_records {
         if a_record.content != wan_ip {
-            println!("Updating record: {}", &a_record.name);
+            println!("Updating A record for {}", &a_record.name);
             update_a_record(&config.cloudflare, &a_record.id, &wan_ip)
         } else {
             println!("A Record for {} is up to date", &a_record.name);
@@ -111,11 +111,9 @@ fn get_a_records(cloudflare: &Cloudflare) -> Vec<ARecord> {
     let url = DNS_RECORDS_URL.replace("{zone_id}", &cloudflare.zone_id);
 
     let client = Client::new();
-
-    let bearer = create_bearer(&cloudflare.api_key);
     
     let response = client.get(&url)
-        .header("Authorization", &bearer)
+        .header("Authorization", create_bearer(&cloudflare.api_key))
         .send().unwrap();
 
     let status = response.status();
@@ -128,7 +126,7 @@ fn get_a_records(cloudflare: &Cloudflare) -> Vec<ARecord> {
     let json: serde_json::Value = response.json().unwrap();
     let records = json["result"].as_array().unwrap();
 
-    let mut record_ids = Vec::new();
+    let mut a_records = Vec::new();
     for record in records {
         if record["type"] == "A" {
             let id = record["id"].as_str().unwrap().to_string();
@@ -136,36 +134,32 @@ fn get_a_records(cloudflare: &Cloudflare) -> Vec<ARecord> {
             let content = record["content"].as_str().unwrap().to_string();
             let a_record = ARecord { id, name, content };
 
-            record_ids.push(a_record);
+            a_records.push(a_record);
         }
     }
 
-    record_ids
+    a_records
 }
 
 fn update_a_record(cloudflare: &Cloudflare, record_id: &String, ip: &String) {
-    println!("Updating A record ID: {}", record_id);
-    let mut url = DNS_RECORDS_URL.replace("{zone_id}", &cloudflare.zone_id);
-    url.push_str(&record_id);
-
-    println!("URL: {}", url);
+    let zone_url = DNS_RECORDS_URL.replace("{zone_id}", &cloudflare.zone_id);
+    let url = format!("{}/{}", zone_url, &record_id);
 
     let client = Client::new();
 
-    let bearer = create_bearer(&cloudflare.api_key);
     let body = json!({
             "content": ip,
         }).to_string();
 
     let response = client.patch(&url)
-        .header("Authorization", &bearer)
+        .header("Authorization", create_bearer(&cloudflare.api_key))
         .body(body)
         .send().unwrap();
 
     let status = response.status();
     if !status.is_success() {
         let status = status.as_str();
-        println!("Failed to load the existing Cloudflare DNS records. Status: {}", status);
+        println!("Failed to update DNS record. Status: {}", status);
         println!("Response: {:?}", response.text());
         process::exit(1);
     }
