@@ -7,7 +7,7 @@ It compares the current WAN IP with the available A records in the zone, then up
 
 The config file has to be named `config.toml` and needs to be saved in the same directory as the executable.
 All values are mandatory.  
-The Cloudflare API key and zone ID can be found in the config
+The Cloudflare API key and zone ID can be created or found through your Cloudflare dashboard.
 
 ``` toml
 [freshtomato]
