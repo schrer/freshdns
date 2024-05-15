@@ -7,7 +7,7 @@ The application takes the current WAN IP from the routers admin page, compares i
 
 ## Config
 
-The config file has to be named `config.toml` and needs to be saved in the same directory as the executable.
+The config file has to be named `config.toml` and needs to be saved in the working directory that you are using.
 All values are mandatory.
 
 ``` toml
