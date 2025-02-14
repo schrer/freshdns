@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Martin Schröder"]
 description = "A tool to update DNS A records on Cloudflare DNS servers to a public IP provided by a FreshTomato router."
-license = "MIT"
 keywords = ["dns", "cloudflare", "fresh-tomato", "ddns"]
 repository = "https://github.com/schrer/freshdns"
 readme = "README.md"
@@ -14,11 +13,12 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.12", features = ["json","blocking"] }
-toml = "0.8.12"
-serde = {version = "1.0.201", features = ["derive"]}
-regex = "1.10.4"
-serde_json = "1.0.117"
+reqwest = { version = "0.12.12", features = ["json", "blocking"] }
+toml = "0.8.20"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.138"
+regex = "1.11.1"
 
 [profile.release]
 lto = true
+opt-level = "s"
